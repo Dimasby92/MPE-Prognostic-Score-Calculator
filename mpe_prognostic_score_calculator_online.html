@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPE Prognostic Score Calculator</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe4ee;
+      --accent: #24577a;
+      --accent2: #e7f2fb;
+      --input: #fff7d6;
+      --ok: #e8f5e9;
+      --warn: #fff3e0;
+      --bad: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--accent);
+      color: white;
+      padding: 28px 18px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    header p {
+      margin: 0;
+      opacity: .92;
+      font-size: 14px;
+    }
+    main {
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 16px 40px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(31, 41, 55, .07);
+      overflow: hidden;
+    }
+    .card h2 {
+      margin: 0;
+      padding: 16px 18px;
+      font-size: 19px;
+      background: var(--accent2);
+      border-bottom: 1px solid var(--line);
+    }
+    .card-body { padding: 18px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 12px 14px;
+      align-items: center;
+    }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 11px;
+      border: 1px solid #b7c6d6;
+      border-radius: 10px;
+      background: var(--input);
+      font-size: 14px;
+    }
+    .hint {
+      grid-column: 1 / -1;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -7px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.secondary {
+      background: #64748b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .score {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .risk {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      background: var(--accent2);
+    }
+    .low { background: var(--ok); }
+    .moderate { background: var(--warn); }
+    .high { background: var(--bad); }
+    .missing { color: #b45309; font-weight: 700; }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    details {
+      border-top: 1px solid var(--line);
+      padding: 14px 18px;
+      background: #fbfdff;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .component-table td:nth-child(n+2), .component-table th:nth-child(n+2) {
+      text-align: center;
+    }
+    footer {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MPE Prognostic Score Calculator</h1>
+    <p>LENT, GASENT, adapted SELECT, and clinical PROMISE</p>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>Patient input</h2>
+        <div class="card-body">
+          <div class="form-grid">
+            <label for="age">Age, years</label>
+            <input id="age" type="number" min="0" step="1" placeholder="Example: 70">
+
+            <label for="sex">Sex</label>
+            <select id="sex">
+              <option value="">Select</option>
+              <option>Female</option>
+              <option>Male</option>
+            </select>
+
+            <label for="ecog">ECOG performance status</label>
+            <select id="ecog">
+              <option value="">Select</option>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+
+            <label for="ldh">Pleural fluid LDH, IU/L</label>
+            <input id="ldh" type="number" min="0" step="1" placeholder="Example: 800">
+
+            <label for="nlr">Serum neutrophil to lymphocyte ratio</label>
+            <input id="nlr" type="number" min="0" step="0.1" placeholder="Example: 7">
+
+            <label for="wcc">White cell count, 10⁹/L</label>
+            <input id="wcc" type="number" min="0" step="0.1" placeholder="Example: 8">
+
+            <label for="hb">Hemoglobin, g/dL</label>
+            <input id="hb" type="number" min="0" step="0.1" placeholder="Example: 12">
+
+            <label for="crp">CRP, mg/L</label>
+            <input id="crp" type="number" min="0" step="0.1" placeholder="Example: 10">
+
+            <label for="egfr">EGFR status</label>
+            <select id="egfr">
+              <option value="">Select</option>
+              <option>Positive</option>
+              <option>Negative</option>
+              <option>Unknown</option>
+            </select>
+
+            <label for="chemo">Previous chemotherapy</label>
+            <select id="chemo">
+              <option value="">Select</option>
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+
+            <label for="radio">Previous radiotherapy</label>
+            <select id="radio">
+              <option value="">Select</option>
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+
+            <label for="tumor">Tumor type</label>
+            <select id="tumor">
+              <option value="">Select</option>
+              <option>Mesothelioma</option>
+              <option>Lymphoma</option>
+              <option>Other hematological malignancy</option>
+              <option>Breast cancer</option>
+              <option>Gynecological cancer</option>
+              <option>Renal cell carcinoma</option>
+              <option>Lung cancer</option>
+              <option>Other tumor type</option>
+            </select>
+
+            <div class="hint">Scores update automatically when inputs are changed. SELECT uses the adapted SELECT score. PROMISE uses the clinical PROMISE score.</div>
+          </div>
+          <div class="buttons">
+            <button onclick="calculate()">Calculate</button>
+            <button class="secondary" onclick="loadExample()">Load example</button>
+            <button class="secondary" onclick="resetForm()">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Results</h2>
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Score</th>
+                <th>Total</th>
+                <th>Risk group</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody id="results"></tbody>
+          </table>
+          <footer>
+            This calculator is for educational and clinical discussion support. It does not replace multidisciplinary clinical judgment.
+          </footer>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px;">
+      <h2>Component score</h2>
+      <div class="card-body">
+        <table class="component-table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>LENT</th>
+              <th>GASENT</th>
+              <th>SELECT</th>
+              <th>PROMISE clinical</th>
+            </tr>
+          </thead>
+          <tbody id="components"></tbody>
+        </table>
+      </div>
+      <details>
+        <summary>Notes</summary>
+        <p class="small">
+          GASENT age is approximated by age category. In the source publication, GASENT is a newer prognostic model for metastatic malignant pleural effusion.
+          The clinical PROMISE score uses previous chemotherapy, previous radiotherapy, hemoglobin, white cell count, CRP, ECOG performance status, and tumor type.
+          LENT uses pleural fluid LDH, ECOG performance status, serum NLR, and tumor type.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    const ids = ["age","sex","ecog","ldh","nlr","wcc","hb","crp","egfr","chemo","radio","tumor"];
+    ids.forEach(id => document.getElementById(id).addEventListener("input", calculate));
+
+    function v(id) {
+      const el = document.getElementById(id);
+      if (!el.value && el.value !== "0") return null;
+      if (el.tagName === "SELECT") return el.value;
+      const n = Number(el.value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function ageGasent(age) {
+      if (age === null) return null;
+      if (age < 25) return 0;
+      if (age < 35) return 2;
+      if (age < 45) return 3;
+      if (age < 55) return 5;
+      if (age < 65) return 6;
+      if (age < 75) return 8;
+      if (age < 85) return 9;
+      return 11;
+    }
+
+    function tumorLent(t) {
+      if (!t) return null;
+      if (["Mesothelioma","Lymphoma","Other hematological malignancy"].includes(t)) return 0;
+      if (["Breast cancer","Gynecological cancer","Renal cell carcinoma"].includes(t)) return 1;
+      return 2;
+    }
+
+    function tumorGasent(t) {
+      if (!t) return null;
+      if (t === "Lymphoma") return 0;
+      if (t === "Lung cancer") return 20;
+      if (t === "Breast cancer") return 33;
+      return 28;
+    }
+
+    function tumorPromise(t) {
+      if (!t) return null;
+      if (t === "Mesothelioma") return 0;
+      if (t === "Lung cancer") return 5;
+      return 4;
+    }
+
+    function numOrMissing(x) {
+      return x === null || x === "" || Number.isNaN(x) ? '<span class="missing">Missing</span>' : x;
+    }
+
+    function requiredComplete(arr) {
+      return arr.every(x => x !== null && x !== "" && !Number.isNaN(x));
+    }
+
+    function row(score, total, group, interpretation, className) {
+      const shownTotal = total === null ? '<span class="missing">Missing input</span>' : `<span class="score">${total}</span>`;
+      const shownGroup = total === null ? '<span class="missing">Missing input</span>' : `<span class="risk ${className}">${group}</span>`;
+      const shownInterp = total === null ? 'Complete required inputs' : interpretation;
+      return `<tr><td>${score}</td><td>${shownTotal}</td><td>${shownGroup}</td><td>${shownInterp}</td></tr>`;
+    }
+
+    function calculate() {
+      const age = v("age");
+      const sex = v("sex");
+      const ecog = v("ecog") === null ? null : Number(v("ecog"));
+      const ldh = v("ldh");
+      const nlr = v("nlr");
+      const wcc = v("wcc");
+      const hb = v("hb");
+      const crp = v("crp");
+      const egfr = v("egfr");
+      const chemo = v("chemo");
+      const radio = v("radio");
+      const tumor = v("tumor");
+
+      const comp = {
+        age: { lent: 0, gasent: ageGasent(age), select: 0, promise: 0 },
+        sex: { lent: 0, gasent: sex ? (sex === "Male" ? 12 : 0) : null, select: sex ? (sex === "Male" ? 1 : 0) : null, promise: 0 },
+        ecog: {
+          lent: ecog === null ? null : (ecog === 0 ? 0 : ecog === 1 ? 1 : ecog === 2 ? 2 : 3),
+          gasent: ecog === null ? null : (ecog === 0 ? 0 : ecog === 1 ? 17 : ecog === 2 ? 33 : ecog === 3 ? 38 : 94),
+          select: ecog === null ? null : (ecog === 0 ? 0 : ecog === 1 ? 1 : ecog === 2 ? 2 : 3),
+          promise: ecog === null ? null : (ecog <= 1 ? 0 : 7)
+        },
+        ldh: { lent: ldh === null ? null : (ldh > 1500 ? 1 : 0), gasent: 0, select: 0, promise: 0 },
+        nlr: { lent: nlr === null ? null : (nlr > 9 ? 1 : 0), gasent: nlr === null ? null : Math.min(Math.max(nlr, 0), 100), select: 0, promise: 0 },
+        wcc: { lent: 0, gasent: 0, select: wcc === null ? null : (wcc > 10 ? 1 : 0), promise: wcc === null ? null : (wcc < 4 ? 0 : wcc < 6.3 ? 2 : wcc < 10 ? 4 : wcc < 15.8 ? 7 : 10) },
+        hb: { lent: 0, gasent: 0, select: 0, promise: hb === null ? null : (hb >= 16 ? 0 : hb >= 14 ? 1 : hb >= 12 ? 2 : hb >= 10 ? 3 : 4) },
+        crp: { lent: 0, gasent: 0, select: 0, promise: crp === null ? null : (crp < 3 ? 0 : crp < 10 ? 3 : crp < 32 ? 5 : crp < 100 ? 8 : 11) },
+        egfr: { lent: 0, gasent: 0, select: (!egfr || egfr === "Unknown") ? null : (egfr === "Negative" ? 2 : 0), promise: 0 },
+        chemo: { lent: 0, gasent: 0, select: chemo ? (chemo === "Yes" ? 1 : 0) : null, promise: chemo ? (chemo === "Yes" ? 4 : 0) : null },
+        radio: { lent: 0, gasent: 0, select: 0, promise: radio ? (radio === "Yes" ? 2 : 0) : null },
+        tumor: { lent: tumorLent(tumor), gasent: tumorGasent(tumor), select: tumorLent(tumor), promise: tumorPromise(tumor) }
+      };
+
+      const lentReq = [comp.ecog.lent, comp.ldh.lent, comp.nlr.lent, comp.tumor.lent];
+      const gasentReq = [comp.age.gasent, comp.sex.gasent, comp.ecog.gasent, comp.nlr.gasent, comp.tumor.gasent];
+      const selectReq = [comp.sex.select, comp.ecog.select, comp.wcc.select, comp.egfr.select, comp.chemo.select, comp.tumor.select];
+      const promiseReq = [comp.ecog.promise, comp.wcc.promise, comp.hb.promise, comp.crp.promise, comp.chemo.promise, comp.radio.promise, comp.tumor.promise];
+
+      const sum = arr => arr.reduce((a,b) => a + b, 0);
+      const lent = requiredComplete(lentReq) ? sum(lentReq) : null;
+      const gasent = requiredComplete(gasentReq) ? sum(gasentReq) : null;
+      const select = requiredComplete(selectReq) ? sum(selectReq) : null;
+      const promise = requiredComplete(promiseReq) ? sum(promiseReq) : null;
+
+      let results = "";
+      results += row("LENT", lent, lent === null ? "" : (lent <= 1 ? "Low risk" : lent <= 4 ? "Moderate risk" : "High risk"), lent === null ? "" : (lent <= 1 ? "Median survival about 319 days" : lent <= 4 ? "Median survival about 130 days" : "Median survival about 44 days"), lent === null ? "" : (lent <= 1 ? "low" : lent <= 4 ? "moderate" : "high"));
+      results += row("GASENT", gasent, gasent === null ? "" : (gasent <= 55 ? "Low risk" : gasent <= 75 ? "Moderate risk" : "High risk"), gasent === null ? "" : (gasent <= 55 ? "Median survival about 477 days" : gasent <= 75 ? "Median survival about 108 days" : "Median survival about 35 days"), gasent === null ? "" : (gasent <= 55 ? "low" : gasent <= 75 ? "moderate" : "high"));
+      results += row("SELECT", select, select === null ? "" : (select <= 4 ? "Low risk" : select <= 7 ? "Moderate risk" : "High risk"), select === null ? "" : (select <= 4 ? "Lower predicted 90 day mortality" : select <= 7 ? "Intermediate predicted 90 day mortality" : "Higher predicted 90 day mortality"), select === null ? "" : (select <= 4 ? "low" : select <= 7 ? "moderate" : "high"));
+      results += row("PROMISE clinical", promise, promise === null ? "" : (promise <= 20 ? "Group A" : promise <= 27 ? "Group B" : promise <= 35 ? "Group C" : "Group D"), promise === null ? "" : (promise <= 20 ? "3 month mortality <25%" : promise <= 27 ? "3 month mortality 25% to <50%" : promise <= 35 ? "3 month mortality 50% to <75%" : "3 month mortality ≥75%"), promise === null ? "" : (promise <= 20 ? "low" : promise <= 35 ? "moderate" : "high"));
+      document.getElementById("results").innerHTML = results;
+
+      const labels = [
+        ["Age", comp.age],
+        ["Sex", comp.sex],
+        ["ECOG performance status", comp.ecog],
+        ["Pleural fluid LDH", comp.ldh],
+        ["Serum NLR", comp.nlr],
+        ["White cell count", comp.wcc],
+        ["Hemoglobin", comp.hb],
+        ["CRP", comp.crp],
+        ["EGFR status", comp.egfr],
+        ["Previous chemotherapy", comp.chemo],
+        ["Previous radiotherapy", comp.radio],
+        ["Tumor type", comp.tumor]
+      ];
+      document.getElementById("components").innerHTML = labels.map(([label, c]) =>
+        `<tr><td>${label}</td><td>${numOrMissing(c.lent)}</td><td>${numOrMissing(c.gasent)}</td><td>${numOrMissing(c.select)}</td><td>${numOrMissing(c.promise)}</td></tr>`
+      ).join("");
+    }
+
+    function loadExample() {
+      document.getElementById("age").value = 70;
+      document.getElementById("sex").value = "Male";
+      document.getElementById("ecog").value = 2;
+      document.getElementById("ldh").value = 800;
+      document.getElementById("nlr").value = 7;
+      document.getElementById("wcc").value = 8;
+      document.getElementById("hb").value = 12;
+      document.getElementById("crp").value = 10;
+      document.getElementById("egfr").value = "Negative";
+      document.getElementById("chemo").value = "No";
+      document.getElementById("radio").value = "No";
+      document.getElementById("tumor").value = "Lung cancer";
+      calculate();
+    }
+
+    function resetForm() {
+      ids.forEach(id => document.getElementById(id).value = "");
+      calculate();
+    }
+
+    calculate();
+  </script>
+</body>
+</html>
