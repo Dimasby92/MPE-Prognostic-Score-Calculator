@@ -4,27 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MPE Prognostic Score Calculator</title>
-  .references {
-  max-width: 1320px;
-  margin: 48px auto 40px auto;
-  padding: 0 24px;
-  color: #1f2937;
-}
-
-.references h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-}
-
-.references ol {
-  padding-left: 24px;
-}
-
-.references li {
-  margin-bottom: 10px;
-  line-height: 1.6;
-  font-size: 15px;
-}
   <style>
     :root {
       --bg: #f4f7fb;
@@ -184,6 +163,16 @@
     .component-table td:nth-child(n+2), .component-table th:nth-child(n+2) {
       text-align: center;
     }
+
+    .references ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .references li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
     footer {
       margin-top: 18px;
       font-size: 12px;
@@ -327,6 +316,17 @@
           LENT uses pleural fluid LDH, ECOG performance status, serum NLR, and tumor type.
         </p>
       </details>
+    </section>
+    <section class="card references" style="margin-top:18px;">
+      <h2>References</h2>
+      <div class="card-body">
+        <ol>
+          <li>Clive AO, Kahan BC, Hooper CE, Bhatnagar R, Morley AJ, Zahan Evans N, et al. Predicting survival in malignant pleural effusion: development and validation of the LENT prognostic score. Thorax. 2014;69(12):1098–1104. doi:10.1136/thoraxjnl-2014-205285.</li>
+          <li>Psallidas I, Kanellakis NI, Gerry S, Thézénas ML, Charles PD, Samsonova A, et al. Development and validation of response markers to predict survival and pleurodesis success in patients with malignant pleural effusion (PROMISE): a multicohort analysis. Lancet Oncol. 2018;19(7):930–939. doi:10.1016/S1470-2045(18)30294-8.</li>
+          <li>Quek JC, Tan QL, Allen JC, Anantham D. Malignant pleural effusion survival prognostication in an Asian population. Respirology. 2020;25(12):1283–1291. doi:10.1111/resp.13837.</li>
+          <li>Suárez Antelo J, Ferreiro L, Porcel JM, Toubes ME, Lado Baleato Ó, Rodríguez Núñez N, et al. Predictors of survival in metastatic malignant pleural effusions: the GASENT score. Arch Bronconeumol. 2025;61(11):680–689. doi:10.1016/j.arbres.2025.04.001.</li>
+        </ol>
+      </div>
     </section>
   </main>
 
@@ -485,14 +485,5 @@
 
     calculate();
   </script>
-<section class="references">
-  <h2>References</h2>
-  <ol>
-    <li>Clive AO, Kahan BC, Hooper CE, Bhatnagar R, Morley AJ, Zahan Evans N, et al. Predicting survival in malignant pleural effusion: development and validation of the LENT prognostic score. Thorax. 2014;69(12):1098–1104. doi:10.1136/thoraxjnl-2014-205285.</li>
-    <li>Psallidas I, Kanellakis NI, Gerry S, Thézénas ML, Charles PD, Samsonova A, et al. Development and validation of response markers to predict survival and pleurodesis success in patients with malignant pleural effusion (PROMISE): a multicohort analysis. Lancet Oncol. 2018;19(7):930–939. doi:10.1016/S1470-2045(18)30294-8.</li>
-    <li>Quek JC, Tan QL, Allen JC, Anantham D. Malignant pleural effusion survival prognostication in an Asian population. Respirology. 2020;25(12):1283–1291. doi:10.1111/resp.13837.</li>
-    <li>Suárez Antelo J, Ferreiro L, Porcel JM, Toubes ME, Lado Baleato Ó, Rodríguez Núñez N, et al. Predictors of survival in metastatic malignant pleural effusions: the GASENT score. Arch Bronconeumol. 2025;61(11):680–689. doi:10.1016/j.arbres.2025.04.001.</li>
-  </ol>
-</section>
 </body>
 </html>
